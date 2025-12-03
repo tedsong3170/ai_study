@@ -1,7 +1,10 @@
 package com.example.langchain.config
 
+import com.example.langchain.service.ErrorCodeAiService
+import com.example.langchain.service.ErrorCodeTools
 import dev.langchain4j.model.chat.ChatLanguageModel
 import dev.langchain4j.model.ollama.OllamaChatModel
+import dev.langchain4j.service.AiServices
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -28,6 +31,21 @@ class LangChainConfig {
             .baseUrl(baseUrl)
             .modelName(modelName)
             .timeout(Duration.parse("PT$timeout"))
+            .build()
+    }
+    
+    /**
+     * ErrorCodeAiService Bean 등록
+     * LangChain4j가 자동으로 구현체를 생성하고 Tools를 연동
+     */
+    @Bean
+    fun errorCodeAiService(
+        chatLanguageModel: ChatLanguageModel,
+        errorCodeTools: ErrorCodeTools
+    ): ErrorCodeAiService {
+        return AiServices.builder(ErrorCodeAiService::class.java)
+            .chatLanguageModel(chatLanguageModel)
+            .tools(errorCodeTools)
             .build()
     }
 }

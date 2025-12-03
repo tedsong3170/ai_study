@@ -31,6 +31,12 @@ dependencies {
     implementation("dev.langchain4j:langchain4j:0.34.0")
     implementation("dev.langchain4j:langchain4j-ollama:0.34.0")
     
+    // JPA
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    
+    // H2 Database
+    runtimeOnly("com.h2database:h2")
+    
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.mockk:mockk:1.13.8")

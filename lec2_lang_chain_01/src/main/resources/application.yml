@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: langchain-error-code-api
+
+langchain:
+  ollama:
+    base-url: http://localhost:11434
+    model-name: gpt-oss:20b
+    timeout: 60s
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    com.example.langchain: DEBUG

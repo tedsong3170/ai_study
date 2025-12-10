@@ -1,5 +1,6 @@
 package com.stock.chat.service;
 
+import com.stock.chat.repository.StockMasterRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +29,9 @@ class StockToolsTest {
         @MockBean
         private RestTemplate restTemplate;
 
+        @MockBean
+        private StockMasterRepository stockMasterRepository;
+
         @BeforeEach
         void setUp() {
                 // Mock token response
@@ -41,6 +46,9 @@ class StockToolsTest {
                                                                 "5.2")));
                 when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(Map.class)))
                                 .thenReturn(ResponseEntity.ok(stockResponse));
+
+                // Mock StockMasterRepository - DB가 비어있지 않은 것처럼
+                when(stockMasterRepository.count()).thenReturn(100L);
         }
 
         @Test
@@ -73,6 +81,7 @@ class StockToolsTest {
                 when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(Map.class)))
                                 .thenReturn(ResponseEntity.ok(candleResponse));
 
+                // 종목 코드로 검색 (숫자면 그대로 반환)
                 String result = stockTools.getMinuteCandle("005930");
                 assertThat(result).isNotNull();
         }
@@ -86,6 +95,7 @@ class StockToolsTest {
                 when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(Map.class)))
                                 .thenReturn(ResponseEntity.ok(stockInfoResponse));
 
+                // 종목 코드로 검색 (숫자면 그대로 반환)
                 String result = stockTools.getStockInfo("005930");
                 assertThat(result).isNotNull();
                 assertThat(result).contains("삼성전자");

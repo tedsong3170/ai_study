@@ -1,6 +1,22 @@
 spring:
   application:
     name: stock-chat
+  datasource:
+    url: jdbc:h2:file:./data/stockdb;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
 
 # Ollama 설정
 langchain4j:
@@ -13,6 +29,10 @@ langchain4j:
 # KIS API 설정 (환경변수로 주입)
 kis:
   api:
-    app-key: PSuCWaBXnmbCzs43cP74emH3hEfXuk5aBQ1X
-    app-secret: NQTcHHXkhXF09IQwZgXT+U5XG6ki9DyhUy4aBnchDJw3OgMloiO7jzNJQ6dd7jTKsgE1rwrUKVzBm1MwXK0INeFsXlIXjWPACe1T7usem1CZtNtKZhbnZOX4gHdDWjygIItzne/seGNu/BdIbUa4D2sDLzthGdaDBecVN/E1Ei66AZA8ff4=
+    app-key: ${KIS_APP_KEY:}
+    app-secret: ${KIS_APP_SECRET:}
     base-url: https://openapi.koreainvestment.com:9443
+
+logging:
+  level:
+    com.stock.chat: DEBUG

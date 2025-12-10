@@ -32,3 +32,5 @@ logs/
 
 # Application
 application-local.yml
+
+*.json

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(tar:*)",
+      "Bash(chmod:*)",
+      "Bash(./gradlew test:*)",
+      "Bash(gradle wrapper:*)",
+      "Bash(/opt/homebrew/bin/gradle wrapper --gradle-version 8.5)",
+      "Bash(/usr/local/bin/gradle wrapper:*)"
+    ]
+  }
+}

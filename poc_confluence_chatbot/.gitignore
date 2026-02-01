@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.Python
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+.gradle/
+*.jar
+*.war
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+
+# Test
+.coverage
+htmlcov/
+.pytest_cache/
+coverage/
+
+# Docker
+*.tar
+
+# Secrets
+*.pem
+*.key
+secrets/

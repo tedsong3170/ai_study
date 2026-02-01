@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # PostgreSQL + pgvector
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: confluence-chatbot-db
+    environment:
+      POSTGRES_DB: chatbot_db
+      POSTGRES_USER: chatbot
+      POSTGRES_PASSWORD: chatbot123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chatbot -d chatbot_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Agent Service (Python + FastAPI)
+  agent:
+    build:
+      context: ./sourcecode/agent
+      dockerfile: Dockerfile
+    container_name: confluence-chatbot-agent
+    environment:
+      DATABASE_URL: postgresql+asyncpg://chatbot:chatbot123@postgres:5432/chatbot_db
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: gpt-oss:20b
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Chatbot Service (Kotlin + Vert.x)
+  chatbot:
+    build:
+      context: ./sourcecode/chatbot
+      dockerfile: Dockerfile
+    container_name: confluence-chatbot-api
+    environment:
+      AGENT_BASE_URL: http://agent:8000
+      CHATBOT_PORT: 8080
+      MAX_CHAT_HISTORY_TURNS: 5
+    ports:
+      - "8080:8080"
+    depends_on:
+      - agent
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Indexer Service (Kotlin + Vert.x) - 배치 실행용
+  # indexer:
+  #   build:
+  #     context: ./sourcecode/indexer
+  #     dockerfile: Dockerfile
+  #   container_name: confluence-chatbot-indexer
+  #   environment:
+  #     CONFLUENCE_BASE_URL: ${CONFLUENCE_BASE_URL}
+  #     CONFLUENCE_API_TOKEN: ${CONFLUENCE_API_TOKEN}
+  #     CONFLUENCE_USER_EMAIL: ${CONFLUENCE_USER_EMAIL}
+  #     CONFLUENCE_SPACE_KEY: ${CONFLUENCE_SPACE_KEY}
+  #     AGENT_BASE_URL: http://agent:8000
+  #   depends_on:
+  #     - agent
+
+volumes:
+  postgres_data:

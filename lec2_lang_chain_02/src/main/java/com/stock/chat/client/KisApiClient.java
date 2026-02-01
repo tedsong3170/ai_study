@@ -213,14 +213,26 @@ public class KisApiClient {
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        // 현재 시간을 HHMMSS 형식으로 (장 시간 내에서 조회)
-        String currentTime = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HHmmss"));
+        // 장 시간 체크: 09:00 ~ 15:30 사이면 현재 시간, 아니면 마지막 장 마감 시간 사용
+        LocalDateTime now = LocalDateTime.now();
+        String queryTime;
+        int hour = now.getHour();
+        int minute = now.getMinute();
+
+        if ((hour == 9 && minute >= 0) || (hour > 9 && hour < 15) || (hour == 15 && minute <= 30)) {
+            // 장 중: 현재 시간 사용
+            queryTime = now.format(java.time.format.DateTimeFormatter.ofPattern("HHmmss"));
+        } else {
+            // 장 마감 후: 15:30:00 사용 (마지막 30분치 분봉 데이터 조회)
+            queryTime = "153000";
+        }
 
         String url = properties.getBaseUrl() + "/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice" +
                 "?fid_cond_mrkt_div_code=J" +
                 "&fid_input_iscd=" + stockCode +
-                "&fid_input_hour_1=" + currentTime +
-                "&fid_pw_data_incu_yn=N";
+                "&fid_input_hour_1=" + queryTime +
+                "&fid_pw_data_incu_yn=Y" +
+                "&fid_etc_cls_code=";
 
         log.info("Calling getMinuteCandle API for stockCode {}: {}", stockCode, url);
 
